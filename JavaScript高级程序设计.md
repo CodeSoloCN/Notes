@@ -63,5 +63,69 @@ function consoleNumber() {
 }
 setTimeout(consoleNumber, 500)
 ```
-
-
+#### 系统对话框
+对话框与html没有关系，外观由浏览器，或者操作系统决定。打开的对话框是同步和模态（不能点击）的，也就是说显示对话框时代码会停止运行。
+- `alert()`:提示，接受一个字符串参数。
+- `confirm()`:确认，接受一个字符串参数，返回值为boolean。
+- `prompt()`:输入，接受两个字符串参数，第一个是提示信息，第二个是输入框默认值
+- `find()|print()`:显示查找框和打印框，非标准。
+### location 对象
+location对象既是window的属性，亦是document的属性，即`window.location == document.location`。  
+location对象保存着当前文档的有关信息，还将URL解析为<a id="location">独立的片段</a>，并提供了一些导航功能。
+- hash：返回URL中的hash，如"#section1"
+- host：返回服务器名称和端口号（如果有）
+- hostname：返回服务器名称，无端口号
+- href：返回完整的URL，和`location.toString()`相同
+- pathname：返回URL中的目录和文件名
+- port：返回端口号，若不存在返回空字符串
+- protocol：返回使用的协议
+- search：返回URL查询字符，即问号传参的字符串，若不存在返回空字符串
+#### 获取查询字符串参数
+```js
+function getQueryStringArgs(){
+    const qs = (location.search.length>0 ? location.search.substring(1) : "")
+    const args = {}
+    let items = qs.length ? qs.split("&") : [],
+        item = null,
+        name = null,
+        value = null
+    const len = items.length
+    for(let i = 0;i<len;i++){
+        item = items[i].split("=")
+        name = decodeURIComponent(item[0]) // 解码URI
+        value = decodeURIComponent(item[1])
+        if(name.length){
+            args[name] = value
+        }
+    }
+    return args
+}
+```
+#### 位置操作
+- 传递新的URL在浏览器中生成历史记录，三者使用效果相同，后两者也会调用assign方法，最常用的是`location.href`。
+    - `location.assign(URL)`
+    - `window.location = URL`
+    - `location.href = URL`
+- 部分改变URL，仅会改变部分ULR，生成历史记录，其中除了hash之外，均会重新加载页面，均为location的属性。
+    - 同对[location的URL解析](#location)，如`location.hash = "#section1"`
+- 不生成浏览历史记录的方法：`location.replace(URL)`
+- 页面重新加载
+```js
+location.reload() // 重新加载，有可能使用缓存
+location.reload(true) // 真·从服务器重新加载
+```
+reload()调用后，其之后的代码可能不执行，也可能执行，主要取决于网络延迟和系统资源等，所以建议把其放在代码最后一行。
+### navigator 对象
+储存着浏览器信息，包括版本插件等。
+### screen 对象
+浏览器窗口外，显示器信息，如显示器像素`screen.width screen.height`
+### history 对象
+每个浏览器窗口，乃至每个框架都有自己的history对象，保存着该窗口的浏览记录。出于安全考虑，浏览记录对开发者不可见，但仍可进行一些操作。
+- history.go()：参数为一个数字或者字符串，整数表示向前n页，负数表示向后n页，字符串表示跳转到历史中包含该字符串中的第一个网页（就近原则）。
+```js
+history.go(-1) // 后退一页
+history.go(1) // 前进一页
+history.go("baidu.com")
+```
+- history.back() history.forward()：两个简写方法，分别模仿浏览器的前进后退。
+- history.length：保存着历史记录的**总条数**，Internet Explorer和Opera从0开始，而Firefox、Chrome和Safari从1开始。可通过判断其值确认当前页面是否为第一个打开的页面
